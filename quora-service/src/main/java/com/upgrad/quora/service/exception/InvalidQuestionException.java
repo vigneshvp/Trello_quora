@@ -7,6 +7,7 @@ import java.io.PrintWriter;
  * InvalidQuestionException is thrown when the question is not found in the database.
  */
 public class InvalidQuestionException extends Exception {
+    private static final long serialVersionUID = -2222093889759478928L;
     private final String code;
     private final String errorMessage;
 
@@ -21,12 +22,12 @@ public class InvalidQuestionException extends Exception {
     }
 
     @Override
-    public void printStackTrace(PrintStream s) {
+    public void printStackTrace(final PrintStream s) {
         super.printStackTrace(s);
     }
 
     @Override
-    public void printStackTrace(PrintWriter s) {
+    public void printStackTrace(final PrintWriter s) {
         super.printStackTrace(s);
     }
 
@@ -37,6 +38,5 @@ public class InvalidQuestionException extends Exception {
     public String getErrorMessage() {
         return errorMessage;
     }
-
 }
 
