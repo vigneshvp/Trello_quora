@@ -2,7 +2,7 @@
 
 This is the Course 6(Restful API project) group assignment. 
 
-Team:
+Team Members:
 Vignesh
 Kanishk
-Sowyajit
+Sowmyajit
