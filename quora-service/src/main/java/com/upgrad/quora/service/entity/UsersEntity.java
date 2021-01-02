@@ -80,6 +80,10 @@ public class UsersEntity implements Serializable {
     @Size(max = 30)
     private String dob;
 
+    @Column(name = "role")
+    @Size(max = 30)
+    private String role;
+
     @Column(name = "CONTACTNUMBER")
     @Size(max = 30)
     private String contactnumber;
@@ -178,6 +182,14 @@ public class UsersEntity implements Serializable {
 
     public void setContactnumber(final String contactnumber) {
         this.contactnumber = contactnumber;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(final String role) {
+        this.role = role;
     }
 
     @Override
