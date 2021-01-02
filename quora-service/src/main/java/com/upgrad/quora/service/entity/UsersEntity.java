@@ -20,10 +20,13 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "users")
-@NamedQueries({
-                      @NamedQuery(name = "usersByUuid",
-                                  query = "select u from UsersEntity u where u.uuid = :uuid")
-              })
+@NamedQueries(
+        {
+                @NamedQuery(name = "userByUuid", query = "select u from UsersEntity u where u.uuid = :uuid"),
+                @NamedQuery(name = "userByEmail", query = "select u from UsersEntity u where u.email =:email"),
+                @NamedQuery(name = "userByUserName", query = "select u from UsersEntity u where u.username =:username")
+        }
+)
 public class UsersEntity implements Serializable {
     private static final long serialVersionUID = 4002003379453838315L;
 
