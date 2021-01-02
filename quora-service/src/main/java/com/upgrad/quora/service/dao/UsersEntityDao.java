@@ -15,7 +15,7 @@ public class UsersEntityDao {
 
     public UsersEntity getUserByUuid(final String uuid) {
         try {
-            return entityManager.createNamedQuery("usersByUuid", UsersEntity.class)
+            return entityManager.createNamedQuery("userByUuid", UsersEntity.class)
                                 .setParameter("uuid", uuid)
                                 .getSingleResult();
         } catch (final NoResultException nre) {
