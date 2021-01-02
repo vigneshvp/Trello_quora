@@ -21,7 +21,8 @@ public class QuestionDao {
 
     public List<QuestionEntity> getAllQuestions() {
         try {
-            return entityManager.createNamedQuery("allQuestions", QuestionEntity.class).getResultList();
+            return entityManager.createNamedQuery("allQuestions", QuestionEntity.class)
+                                .getResultList();
         } catch (final NoResultException nre) {
             return null;
         }
@@ -43,5 +44,9 @@ public class QuestionDao {
         } catch (final NoResultException nre) {
             return null;
         }
+    }
+
+    public void deleteQuestion(final QuestionEntity question) {
+        entityManager.remove(question);
     }
 }

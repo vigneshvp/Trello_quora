@@ -1,5 +1,6 @@
 package com.upgrad.quora.api.controller;
 
+import com.upgrad.quora.api.model.QuestionDeleteResponse;
 import com.upgrad.quora.api.model.QuestionDetailsResponse;
 import com.upgrad.quora.api.model.QuestionEditRequest;
 import com.upgrad.quora.api.model.QuestionEditResponse;
@@ -8,6 +9,7 @@ import com.upgrad.quora.api.model.QuestionResponse;
 import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
+import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -76,6 +78,17 @@ public class QuestionController {
         final QuestionEditResponse response = new QuestionEditResponse()
                 .id(updatedQuestion.getUuid())
                 .status("QUESTION EDITED");
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "/delete/{questionId}",
+                    produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable final String questionId)
+            throws InvalidQuestionException {
+        questionBusinessService.deleteQuestionByUuid(questionId);
+        final QuestionDeleteResponse response = new QuestionDeleteResponse()
+                .id(questionId)
+                .status("QUESTION DELETED");
         return ResponseEntity.ok(response);
     }
 }
