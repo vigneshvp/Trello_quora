@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/")
 @Api(value = "Signup")
-public class SignupController {
+public class UserController {
     
     @Autowired
     private SignupBusinessService signupBusinessService;
