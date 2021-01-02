@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class QuestionBusinessService {
 
@@ -20,5 +22,9 @@ public class QuestionBusinessService {
     @Transactional(propagation = Propagation.REQUIRED)
     public QuestionEntity createQuestion(final QuestionEntity question) {
         return questionDao.createQuestion(question);
+    }
+
+    public List<QuestionEntity> getAllQuestions() {
+        return questionDao.getAllQuestions();
     }
 }

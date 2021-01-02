@@ -1,5 +1,6 @@
 package com.upgrad.quora.api.controller;
 
+import com.upgrad.quora.api.model.QuestionDetailsResponse;
 import com.upgrad.quora.api.model.QuestionRequest;
 import com.upgrad.quora.api.model.QuestionResponse;
 import com.upgrad.quora.service.business.QuestionBusinessService;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -36,6 +39,7 @@ public class QuestionController {
         question.setContent(questionRequest.getContent());
         question.setDate(ZonedDateTime.now());
 
+//        TODO
         final UsersEntity user = new UsersEntity();
         user.setId(1029);
         question.setUser(user);
@@ -44,5 +48,17 @@ public class QuestionController {
         final QuestionResponse response =
                 new QuestionResponse().id(createdQuestion.getUuid()).status("QUESTION CREATED");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/all",
+                    produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions() {
+        final List<QuestionEntity> questionsInDb = questionBusinessService.getAllQuestions();
+        final List<QuestionDetailsResponse> questions = new ArrayList<>();
+        if (null != questionsInDb && !questionsInDb.isEmpty()) {
+            questionsInDb.forEach(question -> questions
+                    .add(new QuestionDetailsResponse().id(question.getUuid()).content(question.getContent())));
+        }
+        return ResponseEntity.ok(questions);
     }
 }
