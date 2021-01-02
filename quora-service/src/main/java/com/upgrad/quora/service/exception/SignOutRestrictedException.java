@@ -4,9 +4,11 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 
 /**
- * SignOutRestrictedException is thrown when a user is not signed in the application and tries to sign out of the application.
+ * SignOutRestrictedException is thrown when a user is not signed in the application and tries to sign out of the
+ * application.
  */
 public class SignOutRestrictedException extends Exception {
+    private static final long serialVersionUID = 1009518001108871222L;
     private final String code;
     private final String errorMessage;
 
@@ -21,12 +23,12 @@ public class SignOutRestrictedException extends Exception {
     }
 
     @Override
-    public void printStackTrace(PrintStream s) {
+    public void printStackTrace(final PrintStream s) {
         super.printStackTrace(s);
     }
 
     @Override
-    public void printStackTrace(PrintWriter s) {
+    public void printStackTrace(final PrintWriter s) {
         super.printStackTrace(s);
     }
 
@@ -37,5 +39,4 @@ public class SignOutRestrictedException extends Exception {
     public String getErrorMessage() {
         return errorMessage;
     }
-
 }
