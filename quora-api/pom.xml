@@ -11,6 +11,10 @@
 
     <artifactId>quora-api</artifactId>
 
+    <properties>
+        <postgresql.driver.version>42.2.2</postgresql.driver.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -64,6 +68,16 @@
             <artifactId>jaxb-api</artifactId>
             <version>2.3.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.driver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.25.0-GA</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -90,7 +104,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
 
         <plugins>
             <plugin>
