@@ -3,7 +3,7 @@ package com.upgrad.quora.api.controller;
 
 import com.upgrad.quora.api.model.SignupUserRequest;
 import com.upgrad.quora.api.model.SignupUserResponse;
-import com.upgrad.quora.service.business.SignupBusinessService;
+import com.upgrad.quora.service.business.UserService;
 import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
 import io.swagger.annotations.Api;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     
     @Autowired
-    private SignupBusinessService signupBusinessService;
+    private UserService userService;
     
     @ApiOperation(value = "Signup a user to the quora trello application", response = ResponseEntity.class)
     @ApiResponses(value = {
@@ -52,7 +52,7 @@ public class UserController {
         userEntity.setRole("nonadmin");
         
         
-        final UsersEntity createdUserEntity = signupBusinessService.signup(userEntity);
+        final UsersEntity createdUserEntity = userService.createUser(userEntity);
         SignupUserResponse userResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("USER SUCCESSFULLY REGISTERED");
         return new ResponseEntity<SignupUserResponse>(userResponse, HttpStatus.CREATED);
     }
