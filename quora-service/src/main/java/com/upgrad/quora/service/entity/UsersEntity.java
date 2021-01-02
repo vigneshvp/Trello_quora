@@ -189,7 +189,15 @@ public class UsersEntity implements Serializable {
     public int hashCode() {
         return new HashCodeBuilder().append(this).hashCode();
     }
-
+    
+    public String getRole() {
+        return role;
+    }
+    
+    public void setRole(String role) {
+        this.role = role;
+    }
+    
     @Override
     public boolean equals(final Object obj) {
         return new EqualsBuilder().append(this, obj).isEquals();
