@@ -3,6 +3,7 @@ package com.upgrad.quora.service.dao;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
@@ -19,19 +20,31 @@ public class UserDao {
     }
     
     public UsersEntity getUser(final String userUuid) {
-        return entityManager.createNamedQuery("userByUuid", UsersEntity.class)
-                   .setParameter("uuid", userUuid)
-                   .getSingleResult();
+        try {
+            return entityManager.createNamedQuery("userByUuid", UsersEntity.class)
+                       .setParameter("uuid", userUuid)
+                       .getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
     }
     
     public UsersEntity getUserByEmail(final String email) {
-        return entityManager.createNamedQuery("userByEmail", UsersEntity.class)
-                   .setParameter("email", email).getSingleResult();
+        try {
+            return entityManager.createNamedQuery("userByEmail", UsersEntity.class)
+                       .setParameter("email", email).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
     }
     
     public UsersEntity getUserByUserName(final String userName) {
-        return entityManager.createNamedQuery("userByUserName", UsersEntity.class)
-                   .setParameter("username", userName).getSingleResult();
+        try {
+            return entityManager.createNamedQuery("userByUserName", UsersEntity.class)
+                       .setParameter("username", userName).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
     }
     
     public UserAuthEntity createAuthToken(final UserAuthEntity userAuthEntity) {
@@ -45,8 +58,13 @@ public class UserDao {
     
     
     public UserAuthEntity getUserAuthToken(final String accessToken) {
-        return entityManager.createNamedQuery("userAuthTokenByAccessToken", UserAuthEntity.class)
-                   .setParameter("accessToken", accessToken).getSingleResult();
+        try {
+            return entityManager
+                       .createNamedQuery("userAuthTokenByAccessToken", UserAuthEntity.class)
+                       .setParameter("accessToken", accessToken).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
     }
     
 }
