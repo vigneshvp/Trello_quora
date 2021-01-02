@@ -2,11 +2,9 @@ package com.upgrad.quora.service.dao;
 
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
-import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserDao {
@@ -21,20 +19,19 @@ public class UserDao {
     }
     
     public UsersEntity getUser(final String userUuid) {
-        try {
-            return entityManager.createNamedQuery("userByUuid", UsersEntity.class).setParameter("uuid", userUuid)
-                       .getSingleResult();
-        } catch (NoResultException nre) {
-            return null;
-        }
+        return entityManager.createNamedQuery("userByUuid", UsersEntity.class)
+                   .setParameter("uuid", userUuid)
+                   .getSingleResult();
     }
     
     public UsersEntity getUserByEmail(final String email) {
-        try {
-            return entityManager.createNamedQuery("userByEmail", UsersEntity.class).setParameter("email", email).getSingleResult();
-        } catch (NoResultException nre) {
-            return null;
-        }
+        return entityManager.createNamedQuery("userByEmail", UsersEntity.class)
+                   .setParameter("email", email).getSingleResult();
+    }
+    
+    public UsersEntity getUserByUserName(final String userName) {
+        return entityManager.createNamedQuery("userByUserName", UsersEntity.class)
+                   .setParameter("username", userName).getSingleResult();
     }
     
     public UserAuthEntity createAuthToken(final UserAuthEntity userAuthEntity) {
@@ -48,13 +45,8 @@ public class UserDao {
     
     
     public UserAuthEntity getUserAuthToken(final String accessToken) {
-        try {
-            return entityManager.createNamedQuery("userAuthTokenByAccessToken", UserAuthEntity.class).setParameter("accessToken", accessToken).getSingleResult();
-        } catch (NoResultException nre) {
-            
-            return null;
-        }
-        
+        return entityManager.createNamedQuery("userAuthTokenByAccessToken", UserAuthEntity.class)
+                   .setParameter("accessToken", accessToken).getSingleResult();
     }
     
 }
