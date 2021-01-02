@@ -1,9 +1,12 @@
 package com.upgrad.quora.service.business;
 
 import com.upgrad.quora.service.dao.QuestionEntityDao;
+import com.upgrad.quora.service.dao.UserAuthEntityDao;
 import com.upgrad.quora.service.dao.UsersEntityDao;
 import com.upgrad.quora.service.entity.QuestionEntity;
+import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
+import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -18,12 +22,28 @@ public class QuestionBusinessService {
 
     private final QuestionEntityDao questionEntityDao;
     private final UsersEntityDao usersEntityDao;
+    private final UserAuthEntityDao userAuthEntityDao;
 
     @Autowired
     public QuestionBusinessService(final QuestionEntityDao questionEntityDao,
-                                   final UsersEntityDao usersEntityDao) {
+                                   final UsersEntityDao usersEntityDao,
+                                   final UserAuthEntityDao userAuthEntityDao) {
         this.questionEntityDao = questionEntityDao;
         this.usersEntityDao = usersEntityDao;
+        this.userAuthEntityDao = userAuthEntityDao;
+    }
+
+    public UsersEntity getUser(final String token) throws AuthorizationFailedException {
+        final UserAuthEntity userAuth = userAuthEntityDao.getUserAuth(token);
+
+        if (null == userAuth) {
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        if (null != userAuth.getLogoutAt() || userAuth.getExpiresAt().isBefore(ZonedDateTime.now())) {
+            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to post a question");
+        }
+
+        return userAuth.getUser();
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
