@@ -10,6 +10,7 @@ import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
+import com.upgrad.quora.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -60,11 +61,7 @@ public class QuestionController {
                     produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions() {
         final List<QuestionEntity> questionsInDb = questionBusinessService.getAllQuestions();
-        final List<QuestionDetailsResponse> questions = new ArrayList<>();
-        if (null != questionsInDb && !questionsInDb.isEmpty()) {
-            questionsInDb.forEach(question -> questions
-                    .add(new QuestionDetailsResponse().id(question.getUuid()).content(question.getContent())));
-        }
+        final List<QuestionDetailsResponse> questions = getQuestionDetailsResponses(questionsInDb);
         return ResponseEntity.ok(questions);
     }
 
@@ -90,5 +87,23 @@ public class QuestionController {
                 .id(questionId)
                 .status("QUESTION DELETED");
         return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/all/{userId}",
+                    produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestionsByUser(@PathVariable final String userId)
+            throws UserNotFoundException {
+        final List<QuestionEntity> questionsInDb = questionBusinessService.getAllQuestionsByUser(userId);
+        final List<QuestionDetailsResponse> questions = getQuestionDetailsResponses(questionsInDb);
+        return ResponseEntity.ok(questions);
+    }
+
+    private List<QuestionDetailsResponse> getQuestionDetailsResponses(final List<QuestionEntity> questionsInDb) {
+        final List<QuestionDetailsResponse> questions = new ArrayList<>();
+        if (null != questionsInDb && !questionsInDb.isEmpty()) {
+            questionsInDb.forEach(question -> questions
+                    .add(new QuestionDetailsResponse().id(question.getUuid()).content(question.getContent())));
+        }
+        return questions;
     }
 }

@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -18,6 +20,10 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "users")
+@NamedQueries({
+                      @NamedQuery(name = "usersByUuid",
+                                  query = "select u from UsersEntity u where u.uuid = :uuid")
+              })
 public class UsersEntity implements Serializable {
     private static final long serialVersionUID = 4002003379453838315L;
 
