@@ -26,4 +26,22 @@ public class QuestionDao {
             return null;
         }
     }
+
+    public QuestionEntity getQuestionByUuid(final String uuid) {
+        try {
+            return entityManager.createNamedQuery("questionByUuid", QuestionEntity.class)
+                                .setParameter("uuid", uuid)
+                                .getSingleResult();
+        } catch (final NoResultException nre) {
+            return null;
+        }
+    }
+
+    public QuestionEntity editQuestion(final QuestionEntity question) {
+        try {
+            return entityManager.merge(question);
+        } catch (final NoResultException nre) {
+            return null;
+        }
+    }
 }

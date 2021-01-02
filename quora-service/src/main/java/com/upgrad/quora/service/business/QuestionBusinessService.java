@@ -27,4 +27,12 @@ public class QuestionBusinessService {
     public List<QuestionEntity> getAllQuestions() {
         return questionDao.getAllQuestions();
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public QuestionEntity editQuestionContent(final String uuid, final String content) {
+        final QuestionEntity questionInDb = questionDao.getQuestionByUuid(uuid);
+        questionInDb.setContent(content);
+
+        return questionDao.editQuestion(questionInDb);
+    }
 }

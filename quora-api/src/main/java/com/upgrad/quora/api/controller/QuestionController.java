@@ -1,15 +1,19 @@
 package com.upgrad.quora.api.controller;
 
 import com.upgrad.quora.api.model.QuestionDetailsResponse;
+import com.upgrad.quora.api.model.QuestionEditRequest;
+import com.upgrad.quora.api.model.QuestionEditResponse;
 import com.upgrad.quora.api.model.QuestionRequest;
 import com.upgrad.quora.api.model.QuestionResponse;
 import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,14 +43,14 @@ public class QuestionController {
         question.setContent(questionRequest.getContent());
         question.setDate(ZonedDateTime.now());
 
-//        TODO
         final UsersEntity user = new UsersEntity();
         user.setId(1029);
         question.setUser(user);
 
         final QuestionEntity createdQuestion = questionBusinessService.createQuestion(question);
-        final QuestionResponse response =
-                new QuestionResponse().id(createdQuestion.getUuid()).status("QUESTION CREATED");
+        final QuestionResponse response = new QuestionResponse()
+                .id(createdQuestion.getUuid())
+                .status("QUESTION CREATED");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -60,5 +64,18 @@ public class QuestionController {
                     .add(new QuestionDetailsResponse().id(question.getUuid()).content(question.getContent())));
         }
         return ResponseEntity.ok(questions);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/edit/{questionId}",
+                    consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+                    produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public HttpEntity<QuestionEditResponse> editQuestionContent(@PathVariable final String questionId,
+                                                                final QuestionEditRequest question) {
+        final QuestionEntity updatedQuestion =
+                questionBusinessService.editQuestionContent(questionId, question.getContent());
+        final QuestionEditResponse response = new QuestionEditResponse()
+                .id(updatedQuestion.getUuid())
+                .status("QUESTION EDITED");
+        return ResponseEntity.ok(response);
     }
 }
