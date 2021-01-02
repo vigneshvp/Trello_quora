@@ -12,6 +12,8 @@ import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,8 @@ import java.util.UUID;
 @RequestMapping("/question")
 public class QuestionController {
 
+    private static final Logger log = LoggerFactory.getLogger(QuestionController.class);
+
     private final QuestionBusinessService questionBusinessService;
 
     @Autowired
@@ -45,6 +49,7 @@ public class QuestionController {
     public ResponseEntity<QuestionResponse> createQuestion(@RequestHeader("authorization") final String authorization,
                                                            final QuestionRequest questionRequest)
             throws AuthorizationFailedException {
+        log.debug("[QuestionController] createQuestion");
         final QuestionEntity question = new QuestionEntity();
         question.setUuid(UUID.randomUUID().toString());
         question.setContent(questionRequest.getContent());
@@ -57,24 +62,37 @@ public class QuestionController {
         final QuestionResponse response = new QuestionResponse()
                 .id(createdQuestion.getUuid())
                 .status("QUESTION CREATED");
+        log.info("[QuestionController] Question Created. Id - {}", createdQuestion.getUuid());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/all",
                     produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions() {
+    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions(
+            @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
+        log.debug("[QuestionController] getAllQuestions");
+
+        final UsersEntity user = questionBusinessService.getUser(authorization);
+        log.info("[QuestionController] LoggedIn User is - {}", user.getUsername());
+
         final List<QuestionEntity> questionsInDb = questionBusinessService.getAllQuestions();
         final List<QuestionDetailsResponse> questions = getQuestionDetailsResponses(questionsInDb);
         return ResponseEntity.ok(questions);
     }
 
-    @RequestMapping(method = RequestMethod.POST, path = "/edit/{questionId}",
+    @RequestMapping(method = RequestMethod.PUT, path = "/edit/{questionId}",
                     consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
                     produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public HttpEntity<QuestionEditResponse> editQuestionContent(@PathVariable final String questionId,
-                                                                final QuestionEditRequest question) {
+    public HttpEntity<QuestionEditResponse> editQuestionContent(
+            @RequestHeader("authorization") final String authorization,
+            @PathVariable final String questionId,
+            final QuestionEditRequest question) throws AuthorizationFailedException, InvalidQuestionException {
+        log.debug("[QuestionController] editQuestionContent");
+
+        final UsersEntity user = questionBusinessService.getUser(authorization);
+
         final QuestionEntity updatedQuestion =
-                questionBusinessService.editQuestionContent(questionId, question.getContent());
+                questionBusinessService.editQuestionContent(user, questionId, question.getContent());
         final QuestionEditResponse response = new QuestionEditResponse()
                 .id(updatedQuestion.getUuid())
                 .status("QUESTION EDITED");
@@ -83,9 +101,15 @@ public class QuestionController {
 
     @RequestMapping(method = RequestMethod.DELETE, path = "/delete/{questionId}",
                     produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@PathVariable final String questionId)
-            throws InvalidQuestionException {
-        questionBusinessService.deleteQuestionByUuid(questionId);
+    public ResponseEntity<QuestionDeleteResponse> deleteQuestion(
+            @RequestHeader("authorization") final String authorization,
+            @PathVariable final String questionId) throws AuthorizationFailedException, InvalidQuestionException {
+        log.debug("[QuestionController] deleteQuestion");
+
+        final UsersEntity user = questionBusinessService.getUser(authorization);
+
+        questionBusinessService.deleteQuestionByUuid(user, questionId);
+
         final QuestionDeleteResponse response = new QuestionDeleteResponse()
                 .id(questionId)
                 .status("QUESTION DELETED");
@@ -94,8 +118,14 @@ public class QuestionController {
 
     @RequestMapping(method = RequestMethod.GET, path = "/all/{userId}",
                     produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestionsByUser(@PathVariable final String userId)
-            throws UserNotFoundException {
+    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestionsByUser(
+            @RequestHeader("authorization") final String authorization,
+            @PathVariable final String userId) throws AuthorizationFailedException, UserNotFoundException {
+        log.debug("[QuestionController] getAllQuestionsByUser");
+
+        final UsersEntity user = questionBusinessService.getUser(authorization);
+        log.info("[QuestionController] Logged-In User is - {}", user.getUsername());
+
         final List<QuestionEntity> questionsInDb = questionBusinessService.getAllQuestionsByUser(userId);
         final List<QuestionDetailsResponse> questions = getQuestionDetailsResponses(questionsInDb);
         return ResponseEntity.ok(questions);

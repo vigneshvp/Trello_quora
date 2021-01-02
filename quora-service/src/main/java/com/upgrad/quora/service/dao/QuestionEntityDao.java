@@ -15,11 +15,6 @@ public class QuestionEntityDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public QuestionEntity createQuestion(final QuestionEntity question) {
-        entityManager.persist(question);
-        return question;
-    }
-
     public List<QuestionEntity> getAllQuestions() {
         try {
             return entityManager.createNamedQuery("allQuestions", QuestionEntity.class)
@@ -39,6 +34,21 @@ public class QuestionEntityDao {
         }
     }
 
+    public List<QuestionEntity> getAllQuestionsByUser(final UsersEntity user) {
+        try {
+            return entityManager.createNamedQuery("questionByUserId", QuestionEntity.class)
+                                .setParameter("user", user)
+                                .getResultList();
+        } catch (final NoResultException nre) {
+            return null;
+        }
+    }
+
+    public QuestionEntity createQuestion(final QuestionEntity question) {
+        entityManager.persist(question);
+        return question;
+    }
+
     public QuestionEntity editQuestion(final QuestionEntity question) {
         try {
             return entityManager.merge(question);
@@ -49,15 +59,5 @@ public class QuestionEntityDao {
 
     public void deleteQuestion(final QuestionEntity question) {
         entityManager.remove(question);
-    }
-
-    public List<QuestionEntity> getAllQuestionsByUser(final UsersEntity user) {
-        try {
-            return entityManager.createNamedQuery("questionByUserId", QuestionEntity.class)
-                                .setParameter("user", user)
-                                .getResultList();
-        } catch (final NoResultException nre) {
-            return null;
-        }
     }
 }
