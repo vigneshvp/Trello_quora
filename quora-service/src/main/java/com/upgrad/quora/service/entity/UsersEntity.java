@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -18,6 +20,13 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "users")
+@NamedQueries(
+        {
+                @NamedQuery(name = "userByUuid", query = "select u from UsersEntity u where u.uuid = :uuid"),
+                @NamedQuery(name = "userByEmail", query = "select u from UsersEntity u where u.email =:email"),
+                @NamedQuery(name = "userByUserName", query = "select u from UsersEntity u where u.username =:username")
+        }
+)
 public class UsersEntity implements Serializable {
     private static final long serialVersionUID = 4002003379453838315L;
 
@@ -73,6 +82,10 @@ public class UsersEntity implements Serializable {
     @Column(name = "DOB")
     @Size(max = 30)
     private String dob;
+
+    @Column(name = "role")
+    @Size(max = 30)
+    private String role;
 
     @Column(name = "CONTACTNUMBER")
     @Size(max = 30)
@@ -172,6 +185,14 @@ public class UsersEntity implements Serializable {
 
     public void setContactnumber(final String contactnumber) {
         this.contactnumber = contactnumber;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(final String role) {
+        this.role = role;
     }
 
     @Override
