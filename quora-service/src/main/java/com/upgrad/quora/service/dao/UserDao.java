@@ -5,6 +5,9 @@ import com.upgrad.quora.service.entity.UsersEntity;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -69,6 +72,12 @@ public class UserDao {
         } catch (NoResultException nre) {
             return null;
         }
+    }
+    
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Transactional
+    public void deleteUser(final UsersEntity userEntity) {
+        entityManager.remove(userEntity);
     }
     
 }

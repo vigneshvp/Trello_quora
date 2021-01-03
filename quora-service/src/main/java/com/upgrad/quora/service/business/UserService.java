@@ -119,13 +119,14 @@ public class UserService {
         // The user has already logged out or the token has expired
         if (userAuthEntity.getLogoutAt() != null || userAuthEntity.getExpiresAt().isBefore(now)) {
             throw new AuthorizationFailedException("ATHR-002",
-                "User is signed out.Sign in first to get user details");
+                "User is signed out");
         }
         
         UsersEntity userEntity = userDao.getUser(userUuid);
         if (null == userEntity) {
             throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
         }
+        
         return userEntity;
     }
 }

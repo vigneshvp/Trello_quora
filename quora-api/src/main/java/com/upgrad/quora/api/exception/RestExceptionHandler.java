@@ -32,14 +32,14 @@ public class RestExceptionHandler {
                 new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
         );
     }
-
+    
     @ExceptionHandler(SignOutRestrictedException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(final SignOutRestrictedException exe,
-                                                                       final WebRequest request) {
-        return new ResponseEntity<>(
-                new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
+    public ResponseEntity<ErrorResponse> authenticationFailedException(SignOutRestrictedException exe, WebRequest request) {
+        return new ResponseEntity<ErrorResponse>(
+            new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
         );
     }
+    
 
     @ExceptionHandler(AuthorizationFailedException.class)
     public ResponseEntity<ErrorResponse> handleAuthorizationFailedException(final AuthorizationFailedException exe,
