@@ -1,10 +1,11 @@
 package com.upgrad.quora.api.exception;
 
 import com.upgrad.quora.api.model.ErrorResponse;
+import com.upgrad.quora.service.exception.AnswerNotFoundException;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
-import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
+import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -31,11 +32,12 @@ public class RestExceptionHandler {
                 new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
         );
     }
-    
+
     @ExceptionHandler(SignOutRestrictedException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(SignOutRestrictedException exe, WebRequest request) {
-        return new ResponseEntity<ErrorResponse>(
-            new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
+    public ResponseEntity<ErrorResponse> authenticationFailedException(final SignOutRestrictedException exe,
+                                                                       final WebRequest request) {
+        return new ResponseEntity<>(
+                new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
         );
     }
 
@@ -60,6 +62,15 @@ public class RestExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(final UserNotFoundException exe,
                                                                      final WebRequest request) {
+        final ErrorResponse error = new ErrorResponse().code(exe.getCode())
+                                                       .message(exe.getErrorMessage())
+                                                       .rootCause(exe.getErrorMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AnswerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAnswerNotFoundException(final AnswerNotFoundException exe,
+                                                                       final WebRequest request) {
         final ErrorResponse error = new ErrorResponse().code(exe.getCode())
                                                        .message(exe.getErrorMessage())
                                                        .rootCause(exe.getErrorMessage());

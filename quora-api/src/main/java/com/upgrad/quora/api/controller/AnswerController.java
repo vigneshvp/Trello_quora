@@ -1,5 +1,7 @@
 package com.upgrad.quora.api.controller;
 
+import com.upgrad.quora.api.model.AnswerEditRequest;
+import com.upgrad.quora.api.model.AnswerEditResponse;
 import com.upgrad.quora.api.model.AnswerRequest;
 import com.upgrad.quora.api.model.AnswerResponse;
 import com.upgrad.quora.service.business.AnswerBusinessService;
@@ -7,6 +9,7 @@ import com.upgrad.quora.service.business.QuestionBusinessService;
 import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
+import com.upgrad.quora.service.exception.AnswerNotFoundException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.slf4j.Logger;
@@ -65,5 +68,23 @@ public class AnswerController {
                 .status("ANSWER CREATED");
         log.info("[AnswerController] Question Created. Id - {}", createdAnswer.getUuid());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, path = "answer/edit/{answerId}",
+                    consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+                    produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AnswerEditResponse> editAnswerContent(
+            @RequestHeader("authorization") final String authorization,
+            @PathVariable final String answerId,
+            final AnswerEditRequest answer) throws AuthorizationFailedException, AnswerNotFoundException {
+        log.debug("[AnswerController] createQuestion");
+
+        final UsersEntity user = questionBusinessService.getUser(authorization);
+
+        final AnswerEntity updatedAnswer = answerBusinessService.editAnswerContent(user, answerId, answer.getContent());
+        final AnswerEditResponse response = new AnswerEditResponse()
+                .id(updatedAnswer.getUuid())
+                .status("ANSWER EDITED");
+        return ResponseEntity.ok(response);
     }
 }
