@@ -19,9 +19,9 @@ public class AdminService {
     private final UserAuthEntityDao userAuthEntityDao;
     
     @Autowired
-    public AdminService(final UserDao userDao,final UserAuthEntityDao userAuthEntityDao) {
-     this.userDao = userDao;
-     this.userAuthEntityDao = userAuthEntityDao;
+    public AdminService(final UserDao userDao, final UserAuthEntityDao userAuthEntityDao) {
+        this.userDao = userDao;
+        this.userAuthEntityDao = userAuthEntityDao;
     }
     
     public void deleteUser(final String userUuid, final String authorizationToken)
@@ -37,6 +37,17 @@ public class AdminService {
         if (null == userAuthEntity) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
+        
+        if (!StringUtils.equalsIgnoreCase(userAuthEntity.getUser().getRole(), "admin")) {
+            throw new AuthorizationFailedException("ATHR-003",
+                "Unauthorized Access, Entered user is not an admin");
+        }
+        
+        UsersEntity userEntity = userDao.getUser(userUuid);
+        if (null == userEntity) {
+            throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
+        }
+        
         final ZonedDateTime now = ZonedDateTime.now();
         // The user has already logged out or the token has expired
         if (userAuthEntity.getLogoutAt() != null || userAuthEntity.getExpiresAt().isBefore(now)) {
@@ -44,16 +55,8 @@ public class AdminService {
                 "User is signed out");
         }
         
-        UsersEntity userEntity = userDao.getUser(userUuid);
-        if (null == userEntity) {
-            throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
-        }
-        if(!StringUtils.equalsIgnoreCase(userAuthEntity.getUser().getRole(),"admin")) {
-            throw new AuthorizationFailedException("ATHR-003",
-                "Unauthorized Access, Entered user is not an admin");
-        }
         userDao.deleteUser(userEntity);
     }
     
-
+    
 }
