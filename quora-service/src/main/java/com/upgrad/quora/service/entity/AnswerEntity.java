@@ -12,6 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -20,6 +22,10 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "answer")
+@NamedQueries({
+                      @NamedQuery(name = "answerByUuid",
+                                  query = "select a from AnswerEntity a where a.uuid = :uuid")
+              })
 public class AnswerEntity implements Serializable {
     private static final long serialVersionUID = 8012246708977575749L;
 
