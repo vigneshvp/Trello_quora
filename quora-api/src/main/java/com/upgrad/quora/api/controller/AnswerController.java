@@ -1,6 +1,7 @@
 package com.upgrad.quora.api.controller;
 
 import com.upgrad.quora.api.model.AnswerDeleteResponse;
+import com.upgrad.quora.api.model.AnswerDetailsResponse;
 import com.upgrad.quora.api.model.AnswerEditRequest;
 import com.upgrad.quora.api.model.AnswerEditResponse;
 import com.upgrad.quora.api.model.AnswerRequest;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -54,7 +57,8 @@ public class AnswerController {
         log.debug("[AnswerController] createQuestion");
 
         final UsersEntity user = questionBusinessService.getUser(authorization);
-        final QuestionEntity question = questionBusinessService.getQuestionByUuid(questionId);
+        final QuestionEntity question =
+                questionBusinessService.getQuestionByUuid(questionId, "The question entered is invalid");
 
         final AnswerEntity answer = new AnswerEntity();
         answer.setUuid(UUID.randomUUID().toString());
@@ -101,6 +105,31 @@ public class AnswerController {
 
         final AnswerDeleteResponse response = new AnswerDeleteResponse()
                 .id(answerId).status("ANSWER DELETED");
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "answer/all/{questionId}",
+                    produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(
+            @RequestHeader("authorization") final String authorization,
+            @PathVariable final String questionId)
+            throws AuthorizationFailedException, InvalidQuestionException {
+        log.debug("[AnswerController] deleteAnswer");
+
+        final UsersEntity user = questionBusinessService.getUser(authorization);
+        log.debug("[AnswerController] Logged-In User - {}", user.getUsername());
+        final QuestionEntity question = questionBusinessService.getQuestionByUuid(questionId,
+                                                                                  "The question with entered uuid " +
+                                                                                  "whose details are to be seen does " +
+                                                                                  "not exist");
+        final List<AnswerEntity> answersInDb = answerBusinessService.getAllAnswersToQuestion(question);
+        final List<AnswerDetailsResponse> response = new ArrayList<>();
+
+        if (null != answersInDb && !answersInDb.isEmpty()) {
+            answersInDb.forEach(answer -> response.add(new AnswerDetailsResponse()
+                                                               .questionContent(answer.getQuestion().getContent())
+                                                               .answerContent(answer.getAns())));
+        }
         return ResponseEntity.ok(response);
     }
 }

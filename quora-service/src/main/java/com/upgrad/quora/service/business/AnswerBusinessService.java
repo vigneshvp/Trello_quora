@@ -2,6 +2,7 @@ package com.upgrad.quora.service.business;
 
 import com.upgrad.quora.service.dao.AnswerEntityDao;
 import com.upgrad.quora.service.entity.AnswerEntity;
+import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.AnswerNotFoundException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class AnswerBusinessService {
@@ -51,6 +54,7 @@ public class AnswerBusinessService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteAnswer(final UsersEntity user, final String answerId)
             throws AnswerNotFoundException, AuthorizationFailedException {
+        log.debug("[AnswerBusinessService] Delete Answer.");
         final AnswerEntity answerInDb = answerEntityDao.getAnswerByUuid(answerId);
         if (null == answerInDb) {
             throw new AnswerNotFoundException("ANS-001", "Entered answer uuid does not exist");
@@ -60,5 +64,10 @@ public class AnswerBusinessService {
             throw new AuthorizationFailedException("ATHR-003", "Only the answer owner or admin can delete the answer");
         }
         answerEntityDao.deleteQuestion(answerInDb);
+    }
+
+    public List<AnswerEntity> getAllAnswersToQuestion(final QuestionEntity question) {
+        log.debug("[AnswerBusinessService] Get all Answers to Question.");
+        return answerEntityDao.getAnswersByQuestionId(question);
     }
 }
