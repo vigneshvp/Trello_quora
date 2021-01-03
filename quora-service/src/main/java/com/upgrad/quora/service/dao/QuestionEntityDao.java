@@ -2,6 +2,8 @@ package com.upgrad.quora.service.dao;
 
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -57,6 +59,7 @@ public class QuestionEntityDao {
         }
     }
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     public void deleteQuestion(final QuestionEntity question) {
         entityManager.remove(question);
     }

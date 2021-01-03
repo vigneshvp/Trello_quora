@@ -1,6 +1,5 @@
 package com.upgrad.quora.service.entity;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -201,8 +200,20 @@ public class UsersEntity implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return new EqualsBuilder().append(this, obj).isEquals();
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UsersEntity)) {
+            return false;
+        }
+
+        final UsersEntity that = (UsersEntity) o;
+
+        if (!getId().equals(that.getId())) {
+            return false;
+        }
+        return getUuid().equals(that.getUuid());
     }
 
     @Override
