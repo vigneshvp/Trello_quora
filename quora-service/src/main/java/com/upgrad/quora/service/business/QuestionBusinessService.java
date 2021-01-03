@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -50,7 +49,7 @@ public class QuestionBusinessService {
             log.error("AuthorizationFailedException : ATHR-001. User has not signed in");
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
-        if (null != userAuth.getLogoutAt() || userAuth.getExpiresAt().isBefore(ZonedDateTime.now())) {
+        if (null != userAuth.getLogoutAt()) {
             log.error("AuthorizationFailedException : ATHR-002. User is signed out.Sign in first to post a question");
             throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to post a question");
         }
