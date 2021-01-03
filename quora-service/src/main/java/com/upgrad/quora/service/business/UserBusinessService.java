@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserService {
+public class UserBusinessService {
     
     private final UserDao userDao;
     
@@ -25,7 +25,7 @@ public class UserService {
     private final PasswordCryptographyProvider cryptographyProvider;
     
     @Autowired
-    public UserService(final UserDao userDao, final UserAuthEntityDao userAuthEntityDao,
+    public UserBusinessService(final UserDao userDao, final UserAuthEntityDao userAuthEntityDao,
         final PasswordCryptographyProvider cryptographyProvider) {
         this.userDao = userDao;
         this.userAuthEntityDao = userAuthEntityDao;
@@ -106,25 +106,24 @@ public class UserService {
         throws UserNotFoundException,
                    AuthorizationFailedException {
         String token = authorizationToken;
-        if (authorizationToken.startsWith("Bearer")) {
+        /*if (authorizationToken.startsWith("Bearer")) {
             token = authorizationToken.split("Bearer ")[1];
         } else if (authorizationToken.startsWith("Basic")) {
             token = authorizationToken.split("Basic ")[1];
-        }
+        }*/
         UserAuthEntity userAuthEntity = userAuthEntityDao.getUserAuth(token);
         if (null == userAuthEntity) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        UsersEntity userEntity = userDao.getUser(userUuid);
+        if (null == userEntity) {
+            throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
         }
         final ZonedDateTime now = ZonedDateTime.now();
         // The user has already logged out or the token has expired
         if (userAuthEntity.getLogoutAt() != null || userAuthEntity.getExpiresAt().isBefore(now)) {
             throw new AuthorizationFailedException("ATHR-002",
                 "User is signed out");
-        }
-        
-        UsersEntity userEntity = userDao.getUser(userUuid);
-        if (null == userEntity) {
-            throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
         }
         
         return userEntity;

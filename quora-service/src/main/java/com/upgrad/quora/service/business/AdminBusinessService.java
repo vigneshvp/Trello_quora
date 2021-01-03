@@ -12,14 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AdminService {
+public class AdminBusinessService {
     
     private final UserDao userDao;
     
     private final UserAuthEntityDao userAuthEntityDao;
     
     @Autowired
-    public AdminService(final UserDao userDao, final UserAuthEntityDao userAuthEntityDao) {
+    public AdminBusinessService(final UserDao userDao, final UserAuthEntityDao userAuthEntityDao) {
         this.userDao = userDao;
         this.userAuthEntityDao = userAuthEntityDao;
     }
@@ -28,11 +28,12 @@ public class AdminService {
         throws UserNotFoundException,
                    AuthorizationFailedException {
         String token = authorizationToken;
+        /*
         if (authorizationToken.startsWith("Bearer")) {
             token = authorizationToken.split("Bearer ")[1];
         } else if (authorizationToken.startsWith("Basic")) {
             token = authorizationToken.split("Basic ")[1];
-        }
+        }*/
         UserAuthEntity userAuthEntity = userAuthEntityDao.getUserAuth(token);
         if (null == userAuthEntity) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
