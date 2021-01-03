@@ -9,14 +9,13 @@ import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class QuestionBusinessService {
@@ -38,11 +37,12 @@ public class QuestionBusinessService {
 
     public UsersEntity getUser(final String authorizationToken) throws AuthorizationFailedException {
         String token = authorizationToken;
+        /*
         if (authorizationToken.startsWith("Bearer")) {
             token = authorizationToken.split("Bearer ")[1];
         } else if (authorizationToken.startsWith("Basic")) {
             token = authorizationToken.split("Basic ")[1];
-        }
+        }*/
         final UserAuthEntity userAuth = userAuthEntityDao.getUserAuth(token);
 
         if (null == userAuth) {

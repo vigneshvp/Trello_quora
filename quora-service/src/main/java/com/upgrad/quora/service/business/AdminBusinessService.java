@@ -1,7 +1,7 @@
 package com.upgrad.quora.service.business;
 
 import com.upgrad.quora.service.dao.UserAuthEntityDao;
-import com.upgrad.quora.service.dao.UserDao;
+import com.upgrad.quora.service.dao.UsersEntityDao;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdminBusinessService {
     
-    private final UserDao userDao;
+    private final UsersEntityDao usersEntityDao;
     
     private final UserAuthEntityDao userAuthEntityDao;
     
     @Autowired
-    public AdminBusinessService(final UserDao userDao, final UserAuthEntityDao userAuthEntityDao) {
-        this.userDao = userDao;
+    public AdminBusinessService(final UsersEntityDao usersEntityDao, final UserAuthEntityDao userAuthEntityDao) {
+        this.usersEntityDao = usersEntityDao;
         this.userAuthEntityDao = userAuthEntityDao;
     }
     
@@ -44,7 +44,7 @@ public class AdminBusinessService {
                 "Unauthorized Access, Entered user is not an admin");
         }
         
-        UsersEntity userEntity = userDao.getUser(userUuid);
+        UsersEntity userEntity = usersEntityDao.getUserByUuid(userUuid);
         if (null == userEntity) {
             throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
         }
@@ -56,7 +56,7 @@ public class AdminBusinessService {
                 "User is signed out");
         }
         
-        userDao.deleteUser(userEntity);
+        usersEntityDao.deleteUser(userEntity);
     }
     
     
