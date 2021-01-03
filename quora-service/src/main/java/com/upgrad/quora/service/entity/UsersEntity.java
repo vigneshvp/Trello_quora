@@ -1,6 +1,5 @@
 package com.upgrad.quora.service.entity;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -10,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -18,6 +19,13 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "users")
+@NamedQueries(
+        {
+                @NamedQuery(name = "userByUuid", query = "select u from UsersEntity u where u.uuid = :uuid"),
+                @NamedQuery(name = "userByEmail", query = "select u from UsersEntity u where u.email =:email"),
+                @NamedQuery(name = "userByUserName", query = "select u from UsersEntity u where u.username =:username")
+        }
+)
 public class UsersEntity implements Serializable {
     private static final long serialVersionUID = 4002003379453838315L;
 
@@ -73,6 +81,10 @@ public class UsersEntity implements Serializable {
     @Column(name = "DOB")
     @Size(max = 30)
     private String dob;
+
+    @Column(name = "role")
+    @Size(max = 30)
+    private String role;
 
     @Column(name = "CONTACTNUMBER")
     @Size(max = 30)
@@ -174,14 +186,34 @@ public class UsersEntity implements Serializable {
         this.contactnumber = contactnumber;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(final String role) {
+        this.role = role;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(this).hashCode();
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return new EqualsBuilder().append(this, obj).isEquals();
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UsersEntity)) {
+            return false;
+        }
+
+        final UsersEntity that = (UsersEntity) o;
+
+        if (!getId().equals(that.getId())) {
+            return false;
+        }
+        return getUuid().equals(that.getUuid());
     }
 
     @Override
