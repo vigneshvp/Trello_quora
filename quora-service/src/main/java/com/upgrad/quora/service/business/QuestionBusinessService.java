@@ -115,4 +115,12 @@ public class QuestionBusinessService {
         }
         return questionEntityDao.getAllQuestionsByUser(user);
     }
+
+    public QuestionEntity getQuestionByUuid(final String questionId) throws InvalidQuestionException {
+        final QuestionEntity questionInDb = questionEntityDao.getQuestionByUuid(questionId);
+        if (null == questionInDb) {
+            throw new InvalidQuestionException("QUES-001", "The question entered is invalid");
+        }
+        return questionInDb;
+    }
 }
