@@ -97,7 +97,7 @@ public class QuestionBusinessService {
             throw new InvalidQuestionException("QUES-001", "Entered question uuid does not exist");
         }
 
-        if (!user.equals(questionInDb.getUser()) || !user.getRole().equals("admin")) {
+        if (!user.equals(questionInDb.getUser()) && !user.getRole().equalsIgnoreCase("admin")) {
             throw new AuthorizationFailedException("ATHR-003",
                                                    "Only the question owner or admin can delete the question");
         }
