@@ -2,12 +2,14 @@ package com.upgrad.quora.api.controller;
 
 
 import com.upgrad.quora.api.model.SigninResponse;
+import com.upgrad.quora.api.model.SignoutResponse;
 import com.upgrad.quora.api.model.SignupUserRequest;
 import com.upgrad.quora.api.model.SignupUserResponse;
 import com.upgrad.quora.service.business.UserService;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
+import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -87,4 +89,18 @@ public class UserController {
         return new ResponseEntity<SigninResponse>(signinResponse, headers, HttpStatus.OK);
     }
     
+    
+    @ApiOperation(value = "Sign-off from the quora trello application", response = ResponseEntity.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "SIGNED OUT SUCCESSFULLY"),
+        @ApiResponse(code = 404, message = "RESOURCE NOT FOUND")
+    })
+    @RequestMapping(method = RequestMethod.POST, path = "/signout", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<SignoutResponse> logoff(@RequestHeader("authorization") final String authorization) throws SignOutRestrictedException {
+        UserAuthEntity userAuthToken = userService.logout(authorization);
+        UsersEntity user = userAuthToken.getUser();
+        SignoutResponse signoutResponse = new SignoutResponse().id(user.getUuid())
+                                            .message("SIGNED OUT SUCCESSFULLY");
+        return new ResponseEntity<SignoutResponse>(signoutResponse, HttpStatus.OK);
+    }
 }
