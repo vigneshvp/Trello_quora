@@ -37,7 +37,7 @@ public class RestExceptionHandler {
         final ErrorResponse error = new ErrorResponse().code(exe.getCode())
                                                        .message(exe.getErrorMessage())
                                                        .rootCause(exe.getErrorMessage());
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(InvalidQuestionException.class)
