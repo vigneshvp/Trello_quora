@@ -1,5 +1,6 @@
 package com.upgrad.quora.api.controller;
 
+import com.upgrad.quora.api.model.AnswerDeleteResponse;
 import com.upgrad.quora.api.model.AnswerEditRequest;
 import com.upgrad.quora.api.model.AnswerEditResponse;
 import com.upgrad.quora.api.model.AnswerRequest;
@@ -85,6 +86,21 @@ public class AnswerController {
         final AnswerEditResponse response = new AnswerEditResponse()
                 .id(updatedAnswer.getUuid())
                 .status("ANSWER EDITED");
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "answer/delete/{answerId}",
+                    produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AnswerDeleteResponse> deleteAnswer(@RequestHeader("authorization") final String authorization,
+                                                             @PathVariable final String answerId)
+            throws AuthorizationFailedException, AnswerNotFoundException {
+        log.debug("[AnswerController] deleteAnswer");
+
+        final UsersEntity user = questionBusinessService.getUser(authorization);
+        answerBusinessService.deleteAnswer(user, answerId);
+
+        final AnswerDeleteResponse response = new AnswerDeleteResponse()
+                .id(answerId).status("ANSWER DELETED");
         return ResponseEntity.ok(response);
     }
 }

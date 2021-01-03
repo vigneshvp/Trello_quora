@@ -47,4 +47,18 @@ public class AnswerBusinessService {
         answerInDb.setAns(content);
         return answerEntityDao.editAnswer(answerInDb);
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteAnswer(final UsersEntity user, final String answerId)
+            throws AnswerNotFoundException, AuthorizationFailedException {
+        final AnswerEntity answerInDb = answerEntityDao.getAnswerByUuid(answerId);
+        if (null == answerInDb) {
+            throw new AnswerNotFoundException("ANS-001", "Entered answer uuid does not exist");
+        }
+
+        if (!user.equals(answerInDb.getUser()) && !user.getRole().equalsIgnoreCase("admin")) {
+            throw new AuthorizationFailedException("ATHR-003", "Only the answer owner or admin can delete the answer");
+        }
+        answerEntityDao.deleteQuestion(answerInDb);
+    }
 }

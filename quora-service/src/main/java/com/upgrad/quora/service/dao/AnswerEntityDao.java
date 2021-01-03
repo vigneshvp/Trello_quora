@@ -35,4 +35,8 @@ public class AnswerEntityDao {
             return null;
         }
     }
+
+    public void deleteQuestion(final AnswerEntity answer) {
+        entityManager.remove(answer);
+    }
 }
