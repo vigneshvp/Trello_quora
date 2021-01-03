@@ -97,10 +97,36 @@ public class UserService {
         }
         final ZonedDateTime now = ZonedDateTime.now();
         userAuthEntity.setLogoutAt(now);
+        
         userDao.updateUserAuthEntity(userAuthEntity);
         return userAuthEntity;
     }
     
-    
+    public UsersEntity getUser(final String userUuid, final String authorizationToken)
+        throws UserNotFoundException,
+                   AuthorizationFailedException {
+        String token = authorizationToken;
+        if (authorizationToken.startsWith("Bearer")) {
+            token = authorizationToken.split("Bearer ")[1];
+        } else if (authorizationToken.startsWith("Basic")) {
+            token = authorizationToken.split("Basic ")[1];
+        }
+        UserAuthEntity userAuthEntity = userAuthEntityDao.getUserAuth(token);
+        if (null == userAuthEntity) {
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        final ZonedDateTime now = ZonedDateTime.now();
+        // The user has already logged out or the token has expired
+        if (userAuthEntity.getLogoutAt() != null || userAuthEntity.getExpiresAt().isBefore(now)) {
+            throw new AuthorizationFailedException("ATHR-002",
+                "User is signed out.Sign in first to get user details");
+        }
+        
+        UsersEntity userEntity = userDao.getUser(userUuid);
+        if (null == userEntity) {
+            throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
+        }
+        return userEntity;
+    }
 }
 
