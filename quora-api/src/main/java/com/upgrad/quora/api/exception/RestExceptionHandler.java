@@ -3,7 +3,6 @@ package com.upgrad.quora.api.exception;
 import com.upgrad.quora.api.model.ErrorResponse;
 import com.upgrad.quora.service.exception.AnswerNotFoundException;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
-import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import com.upgrad.quora.service.exception.SignOutRestrictedException;
@@ -40,14 +39,7 @@ public class RestExceptionHandler {
             new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
         );
     }
-
-    @ExceptionHandler(SignOutRestrictedException.class)
-    public ResponseEntity<ErrorResponse> authenticationFailedException(final SignOutRestrictedException exe,
-                                                                       final WebRequest request) {
-        return new ResponseEntity<>(
-                new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
-        );
-    }
+    
 
     @ExceptionHandler(AuthorizationFailedException.class)
     public ResponseEntity<ErrorResponse> handleAuthorizationFailedException(final AuthorizationFailedException exe,
