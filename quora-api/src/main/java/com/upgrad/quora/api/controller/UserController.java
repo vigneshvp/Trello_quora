@@ -5,7 +5,7 @@ import com.upgrad.quora.api.model.SigninResponse;
 import com.upgrad.quora.api.model.SignoutResponse;
 import com.upgrad.quora.api.model.SignupUserRequest;
 import com.upgrad.quora.api.model.SignupUserResponse;
-import com.upgrad.quora.service.business.UserService;
+import com.upgrad.quora.service.business.UserBusinessService;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     
     @Autowired
-    private UserService userService;
+    private UserBusinessService userBusinessService;
     
     @ApiOperation(value = "Signup a user to the quora trello application", response = ResponseEntity.class)
     @ApiResponses(value = {
@@ -60,7 +60,7 @@ public class UserController {
         userEntity.setRole("nonadmin");
         
         
-        final UsersEntity createdUserEntity = userService.createUser(userEntity);
+        final UsersEntity createdUserEntity = userBusinessService.createUser(userEntity);
         SignupUserResponse userResponse = new SignupUserResponse().id(createdUserEntity.getUuid()).status("USER SUCCESSFULLY REGISTERED");
         return new ResponseEntity<SignupUserResponse>(userResponse, HttpStatus.CREATED);
     }
@@ -78,7 +78,8 @@ public class UserController {
         String decodedText = new String(decode);
         String[] decodedArray = decodedText.split(":");
         
-        UserAuthEntity userAuthToken = userService.authenticate(decodedArray[0], decodedArray[1]);
+        UserAuthEntity userAuthToken = userBusinessService
+                                           .authenticate(decodedArray[0], decodedArray[1]);
         UsersEntity user = userAuthToken.getUser();
         
         SigninResponse signinResponse = new SigninResponse().id(user.getUuid())
@@ -97,7 +98,7 @@ public class UserController {
     })
     @RequestMapping(method = RequestMethod.POST, path = "/signout", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SignoutResponse> logoff(@RequestHeader("authorization") final String authorization) throws SignOutRestrictedException {
-        UserAuthEntity userAuthToken = userService.logout(authorization);
+        UserAuthEntity userAuthToken = userBusinessService.logout(authorization);
         UsersEntity user = userAuthToken.getUser();
         SignoutResponse signoutResponse = new SignoutResponse().id(user.getUuid())
                                             .message("SIGNED OUT SUCCESSFULLY");
