@@ -10,6 +10,7 @@ import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,9 +86,8 @@ public class UserBusinessService {
                 jwtTokenProvider.generateToken(userEntity.getUuid(), now, expiresAt));
             userAuthToken.setLoginAt(now);
             userAuthToken.setExpiresAt(expiresAt);
-            userAuthToken.setUuid(userEntity.getUuid());
+            userAuthToken.setUuid(UUID.randomUUID().toString());
             usersEntityDao.createAuthToken(userAuthToken);
-            usersEntityDao.updateUser(userEntity);
             return userAuthToken;
         } else {
             throw new AuthenticationFailedException("ATH-002", "Password Failed");
