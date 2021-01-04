@@ -11,6 +11,8 @@ import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
 import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.Base64;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -39,7 +41,10 @@ public class UserController {
         this.userBusinessService = userBusinessService;
     }
     
-    
+    @ApiResponses(value = {
+        @ApiResponse(code = 201, message = "User Successfully registered"),
+        @ApiResponse(code = 409, message = "Conflict - Username/Email is already taken")
+    })
     @RequestMapping(method = RequestMethod.POST, path = "/signup", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SignupUserResponse> signup(final SignupUserRequest signupUserRequest)
         throws SignUpRestrictedException {
