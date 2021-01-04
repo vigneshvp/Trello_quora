@@ -8,18 +8,24 @@ import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
 import java.time.ZonedDateTime;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AdminBusinessService {
     
+    private static final Logger log = LoggerFactory.getLogger(AdminBusinessService.class);
+    
+    
     private final UsersEntityDao usersEntityDao;
     
     private final UserAuthEntityDao userAuthEntityDao;
     
     @Autowired
-    public AdminBusinessService(final UsersEntityDao usersEntityDao, final UserAuthEntityDao userAuthEntityDao) {
+    public AdminBusinessService(final UsersEntityDao usersEntityDao,
+        final UserAuthEntityDao userAuthEntityDao) {
         this.usersEntityDao = usersEntityDao;
         this.userAuthEntityDao = userAuthEntityDao;
     }
@@ -27,6 +33,7 @@ public class AdminBusinessService {
     public void deleteUser(final String userUuid, final String authorizationToken)
         throws UserNotFoundException,
                    AuthorizationFailedException {
+        log.debug("[AdminrBusinessService] Delete User");
         String token = authorizationToken;
         /*
         if (authorizationToken.startsWith("Bearer")) {

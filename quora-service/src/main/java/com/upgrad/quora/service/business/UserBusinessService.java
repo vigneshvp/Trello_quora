@@ -10,6 +10,8 @@ import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
 import java.time.ZonedDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,6 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserBusinessService {
+    
+    private static final Logger log = LoggerFactory.getLogger(UserBusinessService.class);
+    
     
     private final UsersEntityDao usersEntityDao;
     
@@ -36,7 +41,7 @@ public class UserBusinessService {
     
     @Transactional(propagation = Propagation.REQUIRED)
     public UsersEntity createUser(final UsersEntity UsersEntity) throws SignUpRestrictedException {
-        
+        log.debug("[UserBusinessService] Create User.");
         String password = UsersEntity.getPassword();
         UsersEntity existingUsersEntity;
         existingUsersEntity = usersEntityDao.getUserByUserName(UsersEntity.getUsername());
@@ -62,6 +67,7 @@ public class UserBusinessService {
     @Transactional(propagation = Propagation.REQUIRED)
     public UserAuthEntity authenticate(final String username, final String password)
         throws AuthenticationFailedException {
+        log.debug("[UserBusinessService] Authenticate User.");
         UsersEntity userEntity = usersEntityDao.getUserByUserName(username);
         if (userEntity == null) {
             throw new AuthenticationFailedException("ATH-001", "This username does not exist");
@@ -91,6 +97,7 @@ public class UserBusinessService {
     
     @Transactional(propagation = Propagation.REQUIRED)
     public UserAuthEntity logout(final String accessToken) throws SignOutRestrictedException {
+        log.debug("[UserBusinessService] Logout User.");
         UserAuthEntity userAuthEntity = usersEntityDao.getUserAuthToken(accessToken);
         if (userAuthEntity == null) {
             throw new SignOutRestrictedException("SGR-001", "User is not Signed in");
@@ -105,6 +112,7 @@ public class UserBusinessService {
     public UsersEntity getUser(final String userUuid, final String authorizationToken)
         throws UserNotFoundException,
                    AuthorizationFailedException {
+        log.debug("[UserBusinessService] Get User details");
         String token = authorizationToken;
         /*if (authorizationToken.startsWith("Bearer")) {
             token = authorizationToken.split("Bearer ")[1];
