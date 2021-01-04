@@ -126,7 +126,7 @@ public class AnswerController {
         final List<AnswerDetailsResponse> response = new ArrayList<>();
 
         if (null != answersInDb && !answersInDb.isEmpty()) {
-            answersInDb.forEach(answer -> response.add(new AnswerDetailsResponse()
+            answersInDb.forEach(answer -> response.add(new AnswerDetailsResponse().id(answer.getUuid())
                                                                .questionContent(answer.getQuestion().getContent())
                                                                .answerContent(answer.getAns())));
         }
