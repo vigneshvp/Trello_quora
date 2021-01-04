@@ -5,6 +5,8 @@ import com.upgrad.quora.service.business.UserBusinessService;
 import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class CommonController {
     
+    private static final Logger log = LoggerFactory.getLogger(CommonController.class);
+    
     private final UserBusinessService userBusinessService;
     
     @Autowired
@@ -31,7 +35,9 @@ public class CommonController {
         @PathVariable("userId") final String userUuid,
         @RequestHeader("authorization") final String authorization)
         throws UserNotFoundException, AuthorizationFailedException {
+        log.debug("[CommonController] getUser");
         final UsersEntity userEntity = userBusinessService.getUser(userUuid, authorization);
+        log.debug("[CommonController] Logged-In User - {}", userEntity.getUsername());
         UserDetailsResponse userDetailsResponse =
             new UserDetailsResponse().firstName(userEntity.getFirstname())
                 .lastName(userEntity.getLastname()).emailAddress(userEntity.getEmail())

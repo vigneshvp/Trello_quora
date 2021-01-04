@@ -13,6 +13,8 @@ import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
 import java.util.Base64;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,16 +30,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 public class UserController {
     
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    
+    private final UserBusinessService userBusinessService;
+    
     @Autowired
-    private UserBusinessService userBusinessService;
+    public UserController(final UserBusinessService userBusinessService) {
+        this.userBusinessService = userBusinessService;
+    }
     
     
     @RequestMapping(method = RequestMethod.POST, path = "/signup", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SignupUserResponse> signup(final SignupUserRequest signupUserRequest)
         throws SignUpRestrictedException {
         
+        log.debug("[UserController] signup");
         final UsersEntity userEntity = new UsersEntity();
-        
         userEntity.setUuid(UUID.randomUUID().toString());
         userEntity.setFirstname(signupUserRequest.getFirstName());
         userEntity.setLastname(signupUserRequest.getLastName());
@@ -50,10 +58,10 @@ public class UserController {
         userEntity.setAboutme(signupUserRequest.getAboutMe());
         userEntity.setDob(signupUserRequest.getDob());
         userEntity.setRole("nonadmin");
-        
         final UsersEntity createdUserEntity = userBusinessService.createUser(userEntity);
         SignupUserResponse userResponse = new SignupUserResponse().id(createdUserEntity.getUuid())
                                               .status("USER SUCCESSFULLY REGISTERED");
+        log.info("[UserController] User Created. Id - {}", createdUserEntity.getUuid());
         return new ResponseEntity<SignupUserResponse>(userResponse, HttpStatus.CREATED);
     }
     
@@ -63,6 +71,7 @@ public class UserController {
         @RequestHeader("authorization") final String authorization)
         throws AuthenticationFailedException {
         
+        log.debug("[UserController] signin");
         byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
         String decodedText = new String(decode);
         String[] decodedArray = decodedText.split(":");
@@ -84,6 +93,7 @@ public class UserController {
     public ResponseEntity<SignoutResponse> signout(
         @RequestHeader("authorization") final String authorization)
         throws SignOutRestrictedException {
+        log.debug("[UserController] signout");
         UserAuthEntity userAuthToken = userBusinessService.logout(authorization);
         UsersEntity user = userAuthToken.getUser();
         SignoutResponse signoutResponse = new SignoutResponse().id(user.getUuid())
