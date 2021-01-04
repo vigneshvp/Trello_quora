@@ -1,7 +1,7 @@
 package com.upgrad.quora.service.business;
 
 import com.upgrad.quora.service.dao.UserAuthEntityDao;
-import com.upgrad.quora.service.dao.UserDao;
+import com.upgrad.quora.service.dao.UsersEntityDao;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UsersEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
@@ -10,24 +10,30 @@ import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
 import java.time.ZonedDateTime;
+import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserService {
+public class UserBusinessService {
     
-    private final UserDao userDao;
+    private static final Logger log = LoggerFactory.getLogger(UserBusinessService.class);
+    
+    
+    private final UsersEntityDao usersEntityDao;
     
     private final UserAuthEntityDao userAuthEntityDao;
     
     private final PasswordCryptographyProvider cryptographyProvider;
     
     @Autowired
-    public UserService(final UserDao userDao, final UserAuthEntityDao userAuthEntityDao,
+    public UserBusinessService(final UsersEntityDao usersEntityDao, final UserAuthEntityDao userAuthEntityDao,
         final PasswordCryptographyProvider cryptographyProvider) {
-        this.userDao = userDao;
+        this.usersEntityDao = usersEntityDao;
         this.userAuthEntityDao = userAuthEntityDao;
         this.cryptographyProvider = cryptographyProvider;
         
@@ -36,15 +42,15 @@ public class UserService {
     
     @Transactional(propagation = Propagation.REQUIRED)
     public UsersEntity createUser(final UsersEntity UsersEntity) throws SignUpRestrictedException {
-        
+        log.debug("[UserBusinessService] Create User.");
         String password = UsersEntity.getPassword();
         UsersEntity existingUsersEntity;
-        existingUsersEntity = userDao.getUserByUserName(UsersEntity.getUsername());
+        existingUsersEntity = usersEntityDao.getUserByUserName(UsersEntity.getUsername());
         if (existingUsersEntity != null) {
             throw new SignUpRestrictedException("SGR-001",
                 "Try any other Username, this Username has already been taken");
         }
-        existingUsersEntity = userDao.getUserByEmail(UsersEntity.getEmail());
+        existingUsersEntity = usersEntityDao.getUserByEmail(UsersEntity.getEmail());
         if (existingUsersEntity != null) {
             throw new SignUpRestrictedException("SGR-002",
                 "This user has already been registered, try with any other emailId");
@@ -55,14 +61,15 @@ public class UserService {
         String[] encryptedText = cryptographyProvider.encrypt(UsersEntity.getPassword());
         UsersEntity.setSalt(encryptedText[0]);
         UsersEntity.setPassword(encryptedText[1]);
-        return userDao.createUser(UsersEntity);
+        return usersEntityDao.createUser(UsersEntity);
         
     }
     
     @Transactional(propagation = Propagation.REQUIRED)
     public UserAuthEntity authenticate(final String username, final String password)
         throws AuthenticationFailedException {
-        UsersEntity userEntity = userDao.getUserByUserName(username);
+        log.debug("[UserBusinessService] Authenticate User.");
+        UsersEntity userEntity = usersEntityDao.getUserByUserName(username);
         if (userEntity == null) {
             throw new AuthenticationFailedException("ATH-001", "This username does not exist");
         }
@@ -79,9 +86,8 @@ public class UserService {
                 jwtTokenProvider.generateToken(userEntity.getUuid(), now, expiresAt));
             userAuthToken.setLoginAt(now);
             userAuthToken.setExpiresAt(expiresAt);
-            userAuthToken.setUuid(userEntity.getUuid());
-            userDao.createAuthToken(userAuthToken);
-            userDao.updateUser(userEntity);
+            userAuthToken.setUuid(UUID.randomUUID().toString());
+            usersEntityDao.createAuthToken(userAuthToken);
             return userAuthToken;
         } else {
             throw new AuthenticationFailedException("ATH-002", "Password Failed");
@@ -91,40 +97,41 @@ public class UserService {
     
     @Transactional(propagation = Propagation.REQUIRED)
     public UserAuthEntity logout(final String accessToken) throws SignOutRestrictedException {
-        UserAuthEntity userAuthEntity = userDao.getUserAuthToken(accessToken);
+        log.debug("[UserBusinessService] Logout User.");
+        UserAuthEntity userAuthEntity = usersEntityDao.getUserAuthToken(accessToken);
         if (userAuthEntity == null) {
             throw new SignOutRestrictedException("SGR-001", "User is not Signed in");
         }
         final ZonedDateTime now = ZonedDateTime.now();
         userAuthEntity.setLogoutAt(now);
         
-        userDao.updateUserAuthEntity(userAuthEntity);
+        usersEntityDao.updateUserAuthEntity(userAuthEntity);
         return userAuthEntity;
     }
     
     public UsersEntity getUser(final String userUuid, final String authorizationToken)
         throws UserNotFoundException,
                    AuthorizationFailedException {
+        log.debug("[UserBusinessService] Get User details");
         String token = authorizationToken;
-        if (authorizationToken.startsWith("Bearer")) {
+        /*if (authorizationToken.startsWith("Bearer")) {
             token = authorizationToken.split("Bearer ")[1];
         } else if (authorizationToken.startsWith("Basic")) {
             token = authorizationToken.split("Basic ")[1];
-        }
+        }*/
         UserAuthEntity userAuthEntity = userAuthEntityDao.getUserAuth(token);
         if (null == userAuthEntity) {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        UsersEntity userEntity = usersEntityDao.getUserByUuid(userUuid);
+        if (null == userEntity) {
+            throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
         }
         final ZonedDateTime now = ZonedDateTime.now();
         // The user has already logged out or the token has expired
         if (userAuthEntity.getLogoutAt() != null || userAuthEntity.getExpiresAt().isBefore(now)) {
             throw new AuthorizationFailedException("ATHR-002",
                 "User is signed out");
-        }
-        
-        UsersEntity userEntity = userDao.getUser(userUuid);
-        if (null == userEntity) {
-            throw new UserNotFoundException("USR-001", "User with entered uuid does not exist");
         }
         
         return userEntity;

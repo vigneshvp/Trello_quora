@@ -1,9 +1,11 @@
 package com.upgrad.quora.api.controller;
 
 import com.upgrad.quora.api.model.UserDeleteResponse;
-import com.upgrad.quora.service.business.AdminService;
+import com.upgrad.quora.service.business.AdminBusinessService;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,11 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin")
 public class AdminController {
     
-    private final AdminService adminService;
+    private static final Logger log = LoggerFactory.getLogger(AdminController.class);
+    
+    private final AdminBusinessService adminBusinessService;
     
     @Autowired
-    public AdminController(final AdminService adminService) {
-        this.adminService = adminService;
+    public AdminController(final AdminBusinessService adminBusinessService) {
+        this.adminBusinessService = adminBusinessService;
     }
     
     @RequestMapping(method = RequestMethod.DELETE, path = "/user/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -30,7 +34,10 @@ public class AdminController {
         @PathVariable("userId") final String userUuid,
         @RequestHeader("authorization") final String authorization)
         throws UserNotFoundException, AuthorizationFailedException {
-        adminService.deleteUser(userUuid, authorization);
+        
+        log.debug("[AdminController] deleteUser");
+        
+        adminBusinessService.deleteUser(userUuid, authorization);
         UserDeleteResponse deleteResponse = new UserDeleteResponse().id(userUuid)
                                                 .status("USER SUCCESSFULLY DELETED");
         return new ResponseEntity<UserDeleteResponse>(deleteResponse, HttpStatus.OK);

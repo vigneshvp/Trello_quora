@@ -54,7 +54,7 @@ public class AnswerController {
                                                        @PathVariable final String questionId,
                                                        final AnswerRequest answerRequest)
             throws AuthorizationFailedException, InvalidQuestionException {
-        log.debug("[AnswerController] createQuestion");
+        log.debug("[AnswerController] createAnswer");
 
         final UsersEntity user = questionBusinessService.getUser(authorization);
         final QuestionEntity question =
@@ -71,7 +71,7 @@ public class AnswerController {
         final AnswerResponse response = new AnswerResponse()
                 .id(createdAnswer.getUuid())
                 .status("ANSWER CREATED");
-        log.info("[AnswerController] Question Created. Id - {}", createdAnswer.getUuid());
+        log.info("[AnswerController] Answer Created. Id - {}", createdAnswer.getUuid());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -82,7 +82,7 @@ public class AnswerController {
             @RequestHeader("authorization") final String authorization,
             @PathVariable final String answerId,
             final AnswerEditRequest answer) throws AuthorizationFailedException, AnswerNotFoundException {
-        log.debug("[AnswerController] createQuestion");
+        log.debug("[AnswerController] editAnswerContent");
 
         final UsersEntity user = questionBusinessService.getUser(authorization);
 
@@ -114,7 +114,7 @@ public class AnswerController {
             @RequestHeader("authorization") final String authorization,
             @PathVariable final String questionId)
             throws AuthorizationFailedException, InvalidQuestionException {
-        log.debug("[AnswerController] deleteAnswer");
+        log.debug("[AnswerController] getAllAnswersToQuestion");
 
         final UsersEntity user = questionBusinessService.getUser(authorization);
         log.debug("[AnswerController] Logged-In User - {}", user.getUsername());
@@ -126,7 +126,7 @@ public class AnswerController {
         final List<AnswerDetailsResponse> response = new ArrayList<>();
 
         if (null != answersInDb && !answersInDb.isEmpty()) {
-            answersInDb.forEach(answer -> response.add(new AnswerDetailsResponse()
+            answersInDb.forEach(answer -> response.add(new AnswerDetailsResponse().id(answer.getUuid())
                                                                .questionContent(answer.getQuestion().getContent())
                                                                .answerContent(answer.getAns())));
         }

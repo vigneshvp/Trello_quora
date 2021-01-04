@@ -20,24 +20,27 @@ public class RestExceptionHandler {
     @ExceptionHandler(SignUpRestrictedException.class)
     public ResponseEntity<ErrorResponse> signupRestrictedException(final SignUpRestrictedException exe,
                                                                    final WebRequest request) {
-        return new ResponseEntity<>(
-                new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.CONFLICT
-        );
+        final ErrorResponse error = new ErrorResponse().code(exe.getCode())
+                                        .message(exe.getErrorMessage())
+                                        .rootCause(exe.getErrorMessage());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(AuthenticationFailedException.class)
     public ResponseEntity<ErrorResponse> authenticationFailedException(final AuthenticationFailedException exe,
                                                                        final WebRequest request) {
-        return new ResponseEntity<>(
-                new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
-        );
+        final ErrorResponse error = new ErrorResponse().code(exe.getCode())
+                                        .message(exe.getErrorMessage())
+                                        .rootCause(exe.getErrorMessage());
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
     
     @ExceptionHandler(SignOutRestrictedException.class)
     public ResponseEntity<ErrorResponse> authenticationFailedException(SignOutRestrictedException exe, WebRequest request) {
-        return new ResponseEntity<ErrorResponse>(
-            new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.UNAUTHORIZED
-        );
+        final ErrorResponse error = new ErrorResponse().code(exe.getCode())
+                                        .message(exe.getErrorMessage())
+                                        .rootCause(exe.getErrorMessage());
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
     
 
