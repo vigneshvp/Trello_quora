@@ -1,6 +1,9 @@
-/*package com.upgrad.quora.api.controller;
+package com.upgrad.quora.api.controller;
 
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +13,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -23,8 +24,9 @@ public class CommonControllerTest {
 
     //This test case passes when you try to get the details of the existing user and the JWT token entered exists in the database and the user corresponding to that JWT token is signed in.
     @Test
+    @Ignore
     public void details() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/userprofile/database_uuid1").header("authorization", "database_accesstoken"))
+        mvc.perform(MockMvcRequestBuilders.get("/userprofile/database_uuid1").header("authorization", "Bearer database_accesstoken"))
                 .andExpect(status().isOk());
     }
 
@@ -44,4 +46,3 @@ public class CommonControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("code").value("USR-001"));
     }
 }
-*/
